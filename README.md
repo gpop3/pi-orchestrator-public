@@ -1,7 +1,9 @@
 # Pi-Orchestrator
 
-Infrastructure personnelle pour orchestrer une Raspberry Pi dédiée à la maison.
+## Présentation
 
+Infrastructure personnelle pour orchestrer une Raspberry Pi dédiée à la maison.
+     
 La Raspberry héberge notamment :
 
 - Home Assistant ;
@@ -17,6 +19,28 @@ Le projet est organisé autour de trois couches :
 ---
 
 ## Architecture du projet
+Schéma d'architecture simplifié 
+```text
+               ┌────────────────────────┐
+               │    GitHub Repository   │ (Code)
+               └───────────┬────────────┘
+                           │  Trigger (Push / PR)
+                           ▼
+ ┌───────────────────────────────────────────────────┐
+ │                   Raspberry Pi                    │ (Infrastructure Local)
+ │                                                   │
+ │  ┌───────────────┐ ┌──────────────┐ ┌──────────┐  │
+ │  │ HomeAssistant │ │ Python (app) │ │ GHA      │  │
+ │  │ (Domotique)   │ │ (IA Agent)   │ │ Runner   │  │
+ │  └───────┬───────┘ └──────┬───────┘ └────┬─────┘  │
+ │          │                │              │        │
+ └──────────┼────────────────┼──────────────┼────────┘
+            │                │              │
+            ▼                ▼              ▼
+     [Objets Connectés]  [APIs Extérieures] [Commandes Locales]
+     (Zigbee/Wi-Fi/IP)   (Anthropic/Twilio) (Ansible & OpenTofu)
+```
+
 ---
 
 ## Responsabilités
@@ -36,8 +60,6 @@ Il installe :
 Le bootstrap ne doit pas configurer toute la machine.  
 La configuration complète est gérée par Ansible.
 
----
-
 ### Ansible
 
 Le dossier `ansible/` configure l’OS de la Raspberry.
@@ -54,11 +76,16 @@ Il gère notamment :
 - la maintenance système ;
 - les mises à jour automatiques.
 
----
-
 ### OpenTofu
 
-Le dossier `opentofu/` gère la couche applicative.
+La dernière couche utilise OpenTofu pour déclarer et instancier les conteneurs applicatifs. L'état (state) est stocké localement.
+
+Déploiement des services
+Depuis le dossier opentofu/ :
+
+- tofu init
+- tofu plan
+- tofu apply -auto-approve
 
 ---
 
@@ -70,6 +97,8 @@ Le dossier `opentofu/` gère la couche applicative.
 - Raspberry Pi OS ou distribution compatible Debian ;
 - accès réseau ;
 - Docker supporté sur l’architecture de la Raspberry.
+
+---
 
 ## Bootstrap
 
@@ -167,3 +196,36 @@ sudo /opt/github-runner/svc.sh status
 ```
 
 Quand le runner est actif, il doit apparaître en ligne dans GitHub Actions.
+
+---
+
+## Pipeline CI/CD (GitOps & DevSecOps)
+
+Le projet intègre un workflow **GitHub Actions** hautement sécurisé et industrialisé qui s'exécute directement sur la Raspberry Pi (`runs-on: raspberry`) via son runner *self-hosted*.
+
+Toute modification de l'infrastructure ou des applications suit un cycle de validation rigoureux avant d'être déployée.
+
+### 1. Sécurité Statique (DevSecOps)
+Avant toute action, le code subit une analyse de vulnérabilité :
+- **Gitleaks** : Scanne l'intégralité du dépôt à la recherche de secrets, clés d'API ou mots de passe qui auraient pu être commités par erreur.
+- **Checkov** : Analyse statique de l'Infrastructure as Code (IaC) pour détecter d'éventuelles failles de sécurité ou mauvaises configurations dans les fichiers OpenTofu/Ansible.
+
+### 2. Couche Système (Ansible)
+- **Validation** : Validation de la syntaxe du playbook et exécution de `ansible-lint` (configuré en mode strict sur les branches de feature pour garantir la qualité du code, et permissif sur `main`).
+- **Déploiement** : Si les tests passent (sur un `push` ou un déclenchement manuel), le playbook `site.yml` est appliqué pour mettre à jour et configurer l'OS de la Raspberry Pi.
+
+### 3. Couche Applicative (OpenTofu)
+- **Validation** : Vérification du formatage (`tofu fmt`), initialisation sans backend et validation de la cohérence des fichiers de configuration (`tofu validate`).
+- **Déploiement** : Injection sécurisée des secrets d'environnement (Tokens GHCR, clés d'API Anthropic/Twilio) via GitHub Secrets. Génération d'un plan d'exécution (`tofu plan`) puis application automatique (`tofu apply`) pour instancier les conteneurs.
+
+### 4. Audit Post-Déploiement & Santé
+Une fois l'infrastructure déployée :
+- **Trivy Scan** : Analyse la sécurité des fichiers de configuration et des images Docker pour identifier les failles applicatives (sévérités `HIGH` et `CRITICAL`).
+- **Healthcheck** : Vérification finale en direct de l'état des conteneurs (`docker ps`).
+
+---
+
+## Gestion des Secrets & Concurrence
+
+- **Protection des données** : Toutes les clés sensibles (Anthropic, Twilio, Docker Registry) sont centralisées dans l'environnement sécurisé `raspberry-maison` de GitHub et injectées dynamiquement au moment du runtime.
+- **Verrouillage des exécutions** : Le workflow utilise un groupe de concurrence (`raspberry-infrastructure`). Si plusieurs modifications sont poussées en même temps, elles s'exécutent l'une après l'autre sans jamais bloquer ou corrompre l'état (*state*) de la machine.
