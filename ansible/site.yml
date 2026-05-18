@@ -1,0 +1,14 @@
+---
+- name: Configure Raspberry Pi home orchestrator
+  hosts: raspberry
+  become: true
+
+  vars_files:
+    - group_vars/raspberry.yml
+
+  roles:
+    - role: base
+    - role: users
+    - role: opentofu
+    - role: docker
+    - role: maintenance

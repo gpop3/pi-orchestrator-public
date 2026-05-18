@@ -1,0 +1,34 @@
+---
+- name: Create main user
+  ansible.builtin.user:
+    name: "{{ main_user }}"
+    shell: /bin/bash
+    groups: "{{ main_user_groups | join(',') }}"
+    append: true
+    create_home: true
+    state: present
+
+- name: Allow main user passwordless sudo
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ main_user }}"
+    content: "{{ main_user }} ALL=(ALL) NOPASSWD:ALL\n"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
+
+- name: Ensure SSH directory exists
+  ansible.builtin.file:
+    path: "/home/{{ main_user }}/.ssh"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ main_user }}"
+    mode: "0700"
+
+- name: Disable SSH password authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PasswordAuthentication"
+    line: "PasswordAuthentication {{ 'yes' if ssh_password_authentication else 'no' }}"
+    validate: "sshd -t -f %s"
+  notify: restart ssh

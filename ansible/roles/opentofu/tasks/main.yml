@@ -1,0 +1,64 @@
+---
+- name: Detect system architecture
+  ansible.builtin.command: dpkg --print-architecture
+  register: dpkg_architecture
+  changed_when: false
+
+- name: Map OpenTofu architecture
+  ansible.builtin.set_fact:
+    opentofu_architecture: >-
+      {{
+        {
+          'amd64': 'amd64',
+          'arm64': 'arm64',
+          'armhf': 'arm'
+        }[dpkg_architecture.stdout]
+      }}
+
+- name: Check if OpenTofu is already installed
+  ansible.builtin.command: tofu version
+  register: opentofu_installed
+  changed_when: false
+  failed_when: false
+
+- name: Download OpenTofu archive
+  ansible.builtin.get_url:
+    url: "https://github.com/opentofu/opentofu/releases/download/v{{ opentofu_version }}/tofu_{{ opentofu_version }}_linux_{{ opentofu_architecture }}.zip"
+    dest: "/tmp/tofu_{{ opentofu_version }}_linux_{{ opentofu_architecture }}.zip"
+    mode: "0644"
+  when: opentofu_installed.rc != 0 or opentofu_version not in opentofu_installed.stdout
+
+- name: Unarchive OpenTofu
+  ansible.builtin.unarchive:
+    src: "/tmp/tofu_{{ opentofu_version }}_linux_{{ opentofu_architecture }}.zip"
+    dest: /tmp
+    remote_src: true
+  when: opentofu_installed.rc != 0 or opentofu_version not in opentofu_installed.stdout
+
+- name: Install OpenTofu binary
+  ansible.builtin.copy:
+    src: /tmp/tofu
+    dest: /usr/local/bin/tofu
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: true
+  when: opentofu_installed.rc != 0 or opentofu_version not in opentofu_installed.stdout
+
+- name: Verify OpenTofu installation
+  ansible.builtin.command: tofu version
+  register: opentofu_version_output
+  changed_when: false
+
+- name: Show OpenTofu version
+  ansible.builtin.debug:
+    var: opentofu_version_output.stdout_lines
+
+- name: Create state directory with correct permissions
+  ansible.builtin.file:
+    path: /opt/opentofu/state
+    state: directory
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    mode: '0755'
+    recurse: yes

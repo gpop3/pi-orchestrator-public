@@ -1,0 +1,35 @@
+---
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ timezone }}"
+  ignore_errors: true
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Upgrade system packages
+  ansible.builtin.apt:
+    upgrade: dist
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name: "{{ packages_base }}"
+    state: present
+
+- name: Create application base directory
+  ansible.builtin.file:
+    path: "{{ app_base_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create apps directory
+  ansible.builtin.file:
+    path: "{{ app_base_dir }}/projets"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"

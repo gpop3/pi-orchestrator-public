@@ -1,0 +1,125 @@
+name: Raspberry Pi Infrastructure
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: raspberry-infrastructure
+  cancel-in-progress: false
+
+env:
+  TF_IN_AUTOMATION: "true"
+  ANSIBLE_FORCE_COLOR: "true"
+
+jobs:
+  security:
+    name: Static Security Scan
+    runs-on: raspberry
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          soft_fail: true
+
+  validate-ansible:
+    name: Validate Ansible
+    needs:
+     - security
+    runs-on: raspberry
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Ansible Lint (Strict hors branche principal)
+        if: github.ref != 'refs/heads/main'
+        working-directory: ansible
+        run: ansible-lint site.yml
+
+      - name: Ansible Lint (Permissif "main")
+        if: github.ref == 'refs/heads/main'
+        working-directory: ansible
+        run: ansible-lint site.yml || true
+
+      - name: Ansible Lint & Syntax
+        working-directory: ansible
+        run: |
+          ansible-playbook -i inventory.ini site.yml --syntax-check
+
+  deploy-ansible:
+    name: Deploy Ansible
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: validate-ansible
+    runs-on: raspberry
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Run Ansible
+        working-directory: ansible
+        run: ansible-playbook -i inventory.ini site.yml
+
+  validate-opentofu:
+    name: Validate OpenTofu
+    needs: [validate-ansible, deploy-ansible]
+    if: always() && (needs.deploy-ansible.result == 'success' || github.event_name == 'pull_request')
+    runs-on: raspberry
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Tofu Init & Validate
+        working-directory: ./opentofu
+        run: |
+          tofu fmt -check
+          tofu init -backend=false
+          tofu validate
+
+  deploy-opentofu:
+    name: Deploy Stack
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: validate-opentofu
+    environment: raspberry-maison
+    runs-on: raspberry
+    env:
+      TF_VAR_ghcr_username: "gpop3"
+      TF_VAR_ghcr_token: ${{ secrets.GHCR_TOKEN }}
+      TF_VAR_decouverte_anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+      TF_VAR_decouverte_twilio_account_sid: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TF_VAR_decouverte_twilio_auth_token: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      TF_VAR_decouverte_twilio_from: ${{ secrets.TWILIO_FROM }}
+      TF_VAR_decouverte_whatsapp_to: ${{ secrets.WHATSAPP_TO }}
+
+    defaults:
+      run:
+        working-directory: ./opentofu
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: OpenTofu Apply
+        run: |
+          tofu init
+          tofu plan -out=tfplan
+          tofu apply -auto-approve tfplan
+
+      - name: Trivy Scan (Images Docker)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Healthcheck
+        run: docker ps
