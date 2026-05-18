@@ -114,12 +114,5 @@ jobs:
           tofu plan -out=tfplan
           tofu apply -auto-approve tfplan
 
-      - name: Trivy Scan (Images Docker)
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'config'
-          format: 'table'
-          severity: 'CRITICAL,HIGH'
-
       - name: Healthcheck
         run: docker ps

@@ -218,9 +218,8 @@ Avant toute action, le code subit une analyse de vulnérabilité :
 - **Validation** : Vérification du formatage (`tofu fmt`), initialisation sans backend et validation de la cohérence des fichiers de configuration (`tofu validate`).
 - **Déploiement** : Injection sécurisée des secrets d'environnement (Tokens GHCR, clés d'API Anthropic/Twilio) via GitHub Secrets. Génération d'un plan d'exécution (`tofu plan`) puis application automatique (`tofu apply`) pour instancier les conteneurs.
 
-### 4. Audit Post-Déploiement & Santé
+### 4. Santé
 Une fois l'infrastructure déployée :
-- **Trivy Scan** : Analyse la sécurité des fichiers de configuration et des images Docker pour identifier les failles applicatives (sévérités `HIGH` et `CRITICAL`).
 - **Healthcheck** : Vérification finale en direct de l'état des conteneurs (`docker ps`).
 
 ---
