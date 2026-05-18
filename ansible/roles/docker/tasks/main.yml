@@ -41,7 +41,7 @@
   ansible.builtin.user:
     name: "{{ runner_user }}"
     groups: docker
-    append: yes
+    append: true
 
 - name: Ensure Docker service is enabled and started
   ansible.builtin.service:

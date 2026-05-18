@@ -61,4 +61,4 @@
     owner: "{{ runner_user }}"
     group: "{{ runner_user }}"
     mode: '0755'
-    recurse: yes
+    recurse: true

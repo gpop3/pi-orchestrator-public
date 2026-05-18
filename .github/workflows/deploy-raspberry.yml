@@ -15,6 +15,10 @@ env:
   TF_IN_AUTOMATION: "true"
   ANSIBLE_FORCE_COLOR: "true"
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   security:
     name: Static Security Scan
