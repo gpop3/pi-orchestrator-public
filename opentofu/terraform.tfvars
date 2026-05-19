@@ -23,4 +23,4 @@ node_red_port  = 1880
 
 
 decouverte_heure_envoi = "07:30"
-decouverte_image       = "ghcr.io/gpop3/1jour1decouverte:sha-0674fd4"
+decouverte_image       = "ghcr.io/gpop3/1jour1decouverte:1.0.0"
