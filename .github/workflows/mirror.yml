@@ -1,0 +1,18 @@
+name: Mirror Sync
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mirror-to-public-repo:
+    name: Sync to Public Repo
+    uses: gpop3/devops-toolbox/.github/workflows/mirror.yml@main
+    with:
+      target_repo: "gpop3/pi-orchestrator-public"
+    secrets:
+      api_token: ${{ secrets.PUBLIC_REPO_TOKEN }}

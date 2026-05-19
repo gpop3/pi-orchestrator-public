@@ -31,4 +31,4 @@
     regexp: "^#?PasswordAuthentication"
     line: "PasswordAuthentication {{ 'yes' if ssh_password_authentication else 'no' }}"
     validate: "sshd -t -f %s"
-  notify: restart ssh
+  notify: Restart ssh
