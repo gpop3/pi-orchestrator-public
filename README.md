@@ -1,3 +1,5 @@
+> ⚠️ **Note :** Ceci est un miroir public et en lecture seule du dépôt privé original. Pour des raisons de sécurité et afin d'éviter tout accès malveillant aux runners privés, les modifications et Pull Requests doivent être soumises uniquement sur le dépôt source.
+
 # Pi-Orchestrator
 
 ## Présentation
