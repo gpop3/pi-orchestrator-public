@@ -18,7 +18,29 @@ module "homeassistant" {
   timezone      = var.timezone
   image         = var.homeassistant_image
   zigbee_device = var.zigbee_device
+
+  backend_network = docker_network.backend.name
+  dns_servers     = var.dns_servers
 }
+
+module "tailscale" {
+  source = "./modules/tailscale"
+
+  data_dir     = var.data_dir
+  hostname     = var.ts_hostname
+  authkey      = var.ts_authkey
+  edge_network = docker_network.edge.name
+}
+
+module "nginx" {
+  source = "./modules/nginx"
+
+  data_dir        = var.data_dir
+  edge_network    = docker_network.edge.name
+  backend_network = docker_network.backend.name
+  ha_upstream     = "homeassistant:8123"
+}
+
 
 module "mqtt" {
   source = "./modules/mqtt"

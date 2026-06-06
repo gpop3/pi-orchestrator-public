@@ -143,3 +143,16 @@ variable "ghcr_token" {
   type        = string
   sensitive   = true
 }
+
+variable "ts_hostname" {
+  type = string,
+  default = "maison"
+}
+
+variable "ts_authkey"  {
+  type = string,
+  sensitive = true
+}
+variable "dns_servers" {
+  type = list(string), default = ["192.168.1.254"]
+}

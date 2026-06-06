@@ -19,8 +19,13 @@ resource "docker_container" "this" {
   name  = "homeassistant"
   image = docker_image.this.repo_digest
 
-  restart      = "unless-stopped"
-  network_mode = "host"
+  restart = "unless-stopped"
+
+  networks_advanced {
+    name = var.backend_network
+  }
+
+  dns = var.dns_servers
 
   env = [
     "TZ=${var.timezone}"

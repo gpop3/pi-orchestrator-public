@@ -104,6 +104,7 @@ jobs:
       TF_VAR_decouverte_twilio_auth_token: ${{ secrets.TWILIO_AUTH_TOKEN }}
       TF_VAR_decouverte_twilio_from: ${{ secrets.TWILIO_FROM }}
       TF_VAR_decouverte_whatsapp_to: ${{ secrets.WHATSAPP_TO }}
+      TF_VAR_ts_authkey: ${{ secrets.TAILSCALE_TS_AUTHKEY }}
 
     defaults:
       run:
