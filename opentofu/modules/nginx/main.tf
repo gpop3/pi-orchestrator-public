@@ -43,8 +43,6 @@ resource "docker_container" "this" {
 
   restart = "unless-stopped"
 
-  # nginx sur edge ET backend : il reçoit de tailscale (edge) et
-  # proxifie vers HA & co (backend). Seul conteneur à chevaucher.
   networks_advanced {
     name = var.edge_network
   }
@@ -52,9 +50,11 @@ resource "docker_container" "this" {
     name = var.backend_network
   }
 
-  # Port 80 publié pour l'accès LAN direct (http://<ip-pi>/).
-  # L'accès via tailscale passe, lui, par le réseau edge (pas besoin
-  # de publication pour ça).
+  host {
+    host = "host.docker.internal"
+    ip   = "host-gateway"
+  }
+
   ports {
     internal = 80
     external = var.port

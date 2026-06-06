@@ -25,7 +25,7 @@ variable "backend_network" {
 }
 
 variable "ha_upstream" {
-  description = "Cible HA (nom de conteneur:port sur backend)"
+  description = "Cible HA. HA étant en host mode."
   type        = string
-  default     = "homeassistant:8123"
+  default     = "host.docker.internal:8123"
 }

@@ -18,9 +18,6 @@ module "homeassistant" {
   timezone      = var.timezone
   image         = var.homeassistant_image
   zigbee_device = var.zigbee_device
-
-  backend_network = docker_network.backend.name
-  dns_servers     = var.dns_servers
 }
 
 module "tailscale" {

@@ -20,19 +20,14 @@ resource "docker_container" "this" {
   image = docker_image.this.repo_digest
 
   restart = "unless-stopped"
-
-  networks_advanced {
-    name = var.backend_network
-  }
-
-  dns = var.dns_servers
+  network_mode = "host"
 
   env = [
     "TZ=${var.timezone}"
   ]
 
   capabilities {
-    add = ["NET_ADMIN"]
+    add = ["NET_ADMIN", "NET_RAW"]
   }
 
   volumes {
