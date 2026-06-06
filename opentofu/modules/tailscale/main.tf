@@ -64,4 +64,10 @@ resource "docker_container" "this" {
   depends_on = [
     null_resource.serve_config
   ]
+
+  lifecycle {
+    ignore_changes = [
+      capabilities,
+    ]
+  }
 }
