@@ -12,11 +12,8 @@ server {
     listen 80;
     server_name _;
 
-    resolver 127.0.0.11 valid=10s;
-
     location / {
-        set $ha_upstream "${var.ha_upstream}";
-        proxy_pass http://$ha_upstream;
+        proxy_pass http://${var.ha_upstream};
 
         proxy_http_version 1.1;
         proxy_set_header Upgrade           $http_upgrade;

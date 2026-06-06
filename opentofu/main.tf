@@ -35,7 +35,7 @@ module "nginx" {
   data_dir        = var.data_dir
   edge_network    = docker_network.edge.name
   backend_network = docker_network.backend.name
-  ha_upstream     = "homeassistant:8123"
+  ha_upstream     = "host.docker.internal:8123"
 }
 
 
