@@ -43,7 +43,7 @@ resource "docker_container" "this" {
     "TS_STATE_DIR=/var/lib/tailscale",
     "TS_USERSPACE=true",
     "TS_SERVE_CONFIG=/config/serve.json",
-    "TS_EXTRA_ARGS=--advertise-tags=tag:gateway",
+    "TS_EXTRA_ARGS=--advertise-tags=tag:gateway --reset",
   ]
 
   capabilities {
