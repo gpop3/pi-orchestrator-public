@@ -69,6 +69,10 @@ jobs:
     needs: validate-ansible
     environment: raspberry-maison
     runs-on: raspberry
+    env:
+      SECURITY_ADMIN_USER: ${{ secrets.SECURITY_ADMIN_USER }}
+      SECURITY_WEBHOOK_URL: ${{ secrets.SECURITY_WEBHOOK_URL }}
+      SECURITY_WEBHOOK_TOKEN: ${{ secrets.SECURITY_WEBHOOK_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
