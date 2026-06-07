@@ -17,7 +17,3 @@
 - name: Webhooks d'alerte
   ansible.builtin.import_tasks: webhooks.yml
   when: security_enable_webhooks | bool
-
-- name: Backup restic
-  ansible.builtin.import_tasks: backup.yml
-  when: security_enable_backup | bool
