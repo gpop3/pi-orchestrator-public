@@ -1,13 +1,5 @@
 ---
-- name: Ajouter le dépôt CrowdSec
-  ansible.builtin.shell: |
-    set -o pipefail
-    curl -s https://packagecloud.io/install/repositories/crowdsec/crowdsec/script.deb.sh | bash
-  args:
-    executable: /bin/bash
-    creates: /etc/apt/sources.list.d/crowdsec_crowdsec.list
-
-- name: Installer CrowdSec + bouncer firewall
+- name: Installer CrowdSec + bouncer firewall (dépôts Debian)
   ansible.builtin.apt:
     name:
       - crowdsec
