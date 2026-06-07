@@ -27,3 +27,6 @@ security_crowdsec_collections:
 security_crowdsec_bouncer_pkg:  crowdsec-firewall-bouncer
 security_bastion_log_glob: /opt/projets/bastion/log/*.log
 security_crowdsec_ban_factor_hours: 4
+security_auditd_max_log_file_mb: 50
+security_auditd_num_logs: 5
+security_journald_max_use: 500M
