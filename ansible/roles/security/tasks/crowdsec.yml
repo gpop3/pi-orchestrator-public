@@ -48,3 +48,10 @@
     - /etc/crowdsec/notifications
 
 - name: Acquisition - auth.log du bastion
+  ansible.builtin.template:
+    src: crowdsec/acquis-bastion.yaml.j2
+    dest: /etc/crowdsec/acquis.d/bastion.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart crowdsec
