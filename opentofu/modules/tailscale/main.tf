@@ -9,7 +9,10 @@ resource "null_resource" "serve_config" {
 sudo mkdir -p ${var.data_dir}/tailscale
 sudo tee ${var.data_dir}/tailscale/serve.json >/dev/null <<'EOF'
 {
-  "TCP": { "443": { "HTTPS": true } },
+  "TCP": {
+    "443": { "HTTPS": true },
+    "2222": { "TCPForward": "bastion:22" }
+  },
   "Web": {
     "$${TS_CERT_DOMAIN}:443": {
       "Handlers": { "/": { "Proxy": "http://${var.nginx_target}" } }
