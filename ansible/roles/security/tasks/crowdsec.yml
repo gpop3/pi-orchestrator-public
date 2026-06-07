@@ -1,4 +1,13 @@
 ---
+- name: Retirer l'ancien dépôt packagecloud CrowdSec
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/apt/sources.list.d/crowdsec_crowdsec.list
+    - /etc/apt/sources.list.d/crowdsec_crowdsec.list.save
+    - /etc/apt/keyrings/crowdsec_crowdsec-archive-keyring.gpg
+
 - name: Installer CrowdSec + bouncer firewall (dépôts Debian)
   ansible.builtin.apt:
     name:
@@ -14,14 +23,16 @@
     enabled: false
   failed_when: false
 
-- name: Installer les collections CrowdSec
-  ansible.builtin.command: "cscli collections install {{ item }}"
+- name: Rafraîchir l'index du hub CrowdSec
+  ansible.builtin.command: cscli hub update
+  changed_when: false
+
+- name: Installer/activer les collections CrowdSec
+  ansible.builtin.command: "cscli collections install {{ item }} --force"
   loop: "{{ security_crowdsec_collections }}"
   register: _cs_coll
-  changed_when: "'already' not in _cs_coll.stdout"
-  failed_when:
-    - _cs_coll.rc != 0
-    - "'already' not in _cs_coll.stdout"
+  changed_when: "'Enabled' in _cs_coll.stdout or 'Downloaded' in _cs_coll.stdout"
+  failed_when: _cs_coll.rc != 0
   notify: Restart crowdsec
 
 - name: Acquisition - auth.log du bastion
