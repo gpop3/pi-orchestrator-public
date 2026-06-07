@@ -3,16 +3,13 @@ set -e
 
 ssh-keygen -A
 
-[ -f /home/jump/.ssh/authorized_keys ] && {
-  chown jump:jump /home/jump/.ssh/authorized_keys
-  chmod 600 /home/jump/.ssh/authorized_keys
-}
-[ -f /home/jump/.google_authenticator ] && {
-  chown jump:jump /home/jump/.google_authenticator
-  chmod 600 /home/jump/.google_authenticator
-}
+if [ -f /home/jump/.google_authenticator ] && [ -w /home/jump/.google_authenticator ]; then
+  chown jump:jump /home/jump/.google_authenticator 2>/dev/null || true
+  chmod 600 /home/jump/.google_authenticator 2>/dev/null || true
+fi
 
-echo "${WEBHOOK_URL:-}" > /etc/sec-webhook-url
-chmod 644 /etc/sec-webhook-url
+echo "${WEBHOOK_URL:-}"   > /etc/sec-webhook-url
+echo "${WEBHOOK_TOKEN:-}" > /etc/sec-webhook-token
+chmod 644 /etc/sec-webhook-url /etc/sec-webhook-token
 
 exec /usr/sbin/sshd -D -e
