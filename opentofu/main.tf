@@ -38,6 +38,14 @@ module "nginx" {
   ha_upstream     = "host.docker.internal:8123"
 }
 
+module "bastion" {
+  source        = "./modules/bastion"
+  data_dir      = var.data_dir
+  ssh_port      = 2222
+  edge_network  = docker_network.edge.name
+  webhook_url   = var.bastion_webhook_url
+  webhook_token = var.bastion_webhook_token
+}
 
 module "mqtt" {
   source = "./modules/mqtt"

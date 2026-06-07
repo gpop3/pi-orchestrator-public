@@ -1,0 +1,20 @@
+---
+- name: Reload sshd
+  ansible.builtin.service:
+    name: ssh
+    state: reloaded
+
+- name: Restart crowdsec
+  ansible.builtin.service:
+    name: crowdsec
+    state: restarted
+
+- name: Restart auditd
+  ansible.builtin.service:
+    name: auditd
+    state: restarted
+
+- name: Restart journald
+  ansible.builtin.service:
+    name: systemd-journald
+    state: restarted

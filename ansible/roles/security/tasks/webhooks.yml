@@ -1,0 +1,16 @@
+---
+- name: Script de notification sécurité
+  ansible.builtin.template:
+    src: sec-notify.sh.j2
+    dest: /usr/local/bin/sec-notify.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Notifier les logins SSH hôte (sshrc)
+  ansible.builtin.template:
+    src: sshrc.j2
+    dest: /etc/ssh/sshrc
+    owner: root
+    group: root
+    mode: "0755"

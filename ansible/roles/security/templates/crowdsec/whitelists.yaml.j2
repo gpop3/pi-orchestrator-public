@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+name: crowdsecurity/mywhitelists
+description: "Réseaux de confiance — jamais bloqués (anti-lockout)"
+whitelist:
+  reason: "tailnet + LAN + localhost"
+  cidr:
+{% for c in security_whitelist_cidr %}
+    - "{{ c }}"
+{% endfor %}

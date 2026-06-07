@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+name: default_ip_remediation
+filters:
+  - Alert.Remediation == true && Alert.GetScope() == "Ip"
+# Escalade : (nb de bans précédents + 1) x {{ security_crowdsec_ban_factor_hours }}h
+duration_expr: Sprintf('%dh', (GetDecisionsCount(Alert.GetValue()) + 1) * {{ security_crowdsec_ban_factor_hours }})
+decisions:
+  - type: ban
+    duration: {{ security_crowdsec_ban_factor_hours }}h
+{% if security_webhook_url | length > 0 %}
+notifications:
+  - http_default
+{% endif %}
+on_success: break

@@ -12,3 +12,4 @@
     - role: opentofu
     - role: docker
     - role: maintenance
+    - role: security

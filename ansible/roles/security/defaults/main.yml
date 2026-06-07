@@ -1,0 +1,28 @@
+---
+security_enable_ssh_ufw:   true
+security_enable_crowdsec:  true
+security_enable_audit:     true
+security_enable_webhooks:  true
+
+security_admin_user:  "{{ lookup('env', 'SECURITY_ADMIN_USER') }}"
+security_bastion_ssh_port: 2222
+security_lan_subnet: "192.168.1.0/24"
+security_docker_subnet: "172.16.0.0/12"
+security_tailscale_iface: tailscale0
+
+security_whitelist_cidr:
+  - "127.0.0.1/32"
+  - "100.64.0.0/10"
+  - "192.168.1.0/24"
+
+security_webhook_url: "{{ lookup('env', 'SECURITY_WEBHOOK_URL') | default('', true) }}"
+security_webhook_token: "{{ lookup('env', 'SECURITY_WEBHOOK_TOKEN') | default('', true) }}"
+
+security_crowdsec_collections:
+  - crowdsecurity/sshd
+  - crowdsecurity/nginx
+  - crowdsecurity/linux
+  - crowdsecurity/base-http-scenarios
+security_crowdsec_bouncer_pkg: crowdsec-firewall-bouncer-iptables
+security_bastion_log_glob: /opt/projets/bastion/log/*.log
+security_crowdsec_ban_factor_hours: 4

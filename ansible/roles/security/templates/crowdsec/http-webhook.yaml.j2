@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+type: http
+name: http_default
+
+url: {{ security_webhook_url }}
+method: POST
+headers:
+  Content-Type: application/json
+{% if security_webhook_token | length > 0 %}
+  Authorization: "Bearer {{ security_webhook_token }}"
+{% endif %}
+
+{% raw %}
+format: |
+  {"event":"crowdsec_ban","count":{{ len . }},"host":"crowdsec"}
+{% endraw %}

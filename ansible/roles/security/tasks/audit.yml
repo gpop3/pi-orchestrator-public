@@ -1,0 +1,35 @@
+---
+- name: Installer auditd
+  ansible.builtin.apt:
+    name:
+      - auditd
+      - audispd-plugins
+    state: present
+    update_cache: true
+
+- name: Règles auditd
+  ansible.builtin.template:
+    src: audit.rules.j2
+    dest: /etc/audit/rules.d/99-security.rules
+    owner: root
+    group: root
+    mode: "0640"
+  notify: Restart auditd
+
+- name: Répertoire de logs persistants
+  ansible.builtin.file:
+    path: /var/log/journal
+    state: directory
+    mode: "0755"
+
+- name: journald persistant
+  ansible.builtin.copy:
+    dest: /etc/systemd/journald.conf.d/99-persistent.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [Journal]
+      Storage=persistent
+      MaxRetentionSec=1year
+  notify: Restart journald

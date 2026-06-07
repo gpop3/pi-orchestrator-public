@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+set -u
+URL="{{ security_webhook_url }}"
+TOKEN="{{ security_webhook_token }}"
+[ -z "$URL" ] && exit 0
+
+AUTH=()
+[ -n "$TOKEN" ] && AUTH=(-H "Authorization: Bearer ${TOKEN}")
+
+curl -fsS -m 5 -X POST "$URL" \
+  "${AUTH[@]}" \
+  -H 'Content-Type: application/json' \
+  -d "{\"event\":\"${1:-unknown}\",\"detail\":\"${2:-}\",\"host\":\"$(hostname)\",\"ts\":\"$(date -Iseconds)\"}" \
+  >/dev/null 2>&1 || logger -t sec-notify "echec webhook event=${1:-unknown}"

@@ -105,6 +105,8 @@ jobs:
       TF_VAR_decouverte_twilio_from: ${{ secrets.TWILIO_FROM }}
       TF_VAR_decouverte_whatsapp_to: ${{ secrets.WHATSAPP_TO }}
       TF_VAR_ts_authkey: ${{ secrets.TAILSCALE_TS_AUTHKEY }}
+      TF_VAR_bastion_webhook_url: ${{ secrets.BASTION_WEBHOOK_URL }}
+      TF_VAR_bastion_webhook_token: ${{ secrets.BASTION_WEBHOOK_TOKEN }}
 
     defaults:
       run:

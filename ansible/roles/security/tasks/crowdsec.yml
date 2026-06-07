@@ -1,0 +1,79 @@
+---
+- name: Ajouter le dépôt CrowdSec
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -s https://packagecloud.io/install/repositories/crowdsec/crowdsec/script.deb.sh | bash
+  args:
+    executable: /bin/bash
+    creates: /etc/apt/sources.list.d/crowdsec_crowdsec.list
+
+- name: Installer CrowdSec + bouncer firewall
+  ansible.builtin.apt:
+    name:
+      - crowdsec
+      - "{{ security_crowdsec_bouncer_pkg }}"
+    state: present
+    update_cache: true
+
+- name: Désactiver fail2ban si présent (conflit iptables avec CrowdSec)
+  ansible.builtin.service:
+    name: fail2ban
+    state: stopped
+    enabled: false
+  failed_when: false
+
+- name: Installer les collections CrowdSec
+  ansible.builtin.command: "cscli collections install {{ item }}"
+  loop: "{{ security_crowdsec_collections }}"
+  register: _cs_coll
+  changed_when: "'already' not in _cs_coll.stdout"
+  failed_when:
+    - _cs_coll.rc != 0
+    - "'already' not in _cs_coll.stdout"
+  notify: Restart crowdsec
+
+- name: Acquisition - auth.log du bastion
+  ansible.builtin.template:
+    src: crowdsec/acquis-bastion.yaml.j2
+    dest: /etc/crowdsec/acquis.d/bastion.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart crowdsec
+
+- name: Whitelist - réseaux de confiance
+  ansible.builtin.template:
+    src: crowdsec/whitelists.yaml.j2
+    dest: /etc/crowdsec/parsers/s02-enrich/mywhitelists.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart crowdsec
+
+- name: Profil d'escalade (ban croissant à chaque récidive)
+  ansible.builtin.template:
+    src: crowdsec/profiles.yaml.j2
+    dest: /etc/crowdsec/profiles.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart crowdsec
+
+- name: Notification webhook HA (sur ban)
+  ansible.builtin.template:
+    src: crowdsec/http-webhook.yaml.j2
+    dest: /etc/crowdsec/notifications/http.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  when: security_webhook_url | length > 0
+  notify: Restart crowdsec
+
+- name: Activer CrowdSec + bouncer
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - crowdsec
+    - crowdsec-firewall-bouncer

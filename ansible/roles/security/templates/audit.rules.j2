@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+-w /etc/passwd -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/sudoers -p wa -k sudoers
+-w /etc/sudoers.d/ -p wa -k sudoers
+-w /etc/ssh/sshd_config -p wa -k sshd
+-w /etc/ssh/sshd_config.d/ -p wa -k sshd
+-a always,exit -F arch=b64 -F euid=0 -S execve -k root_cmd
+-w /var/lib/docker/ -p wa -k docker
+-w /usr/bin/docker -p x -k docker_exec
+-e 2

@@ -153,3 +153,16 @@ variable "ts_authkey" {
   type      = string
   sensitive = true
 }
+
+variable "bastion_webhook_url" {
+  description = "URL du webhook HA pour notifier les logins bastion"
+  type        = string
+  default     = ""
+}
+
+variable "bastion_webhook_token" {
+  description = "Token Bearer pour l'API de notification"
+  type        = string
+  default     = ""
+  sensitive   = true
+}

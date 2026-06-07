@@ -1,0 +1,16 @@
+---
+- name: SSH durci + UFW (tout le SSH via le bastion)
+  ansible.builtin.import_tasks: ssh_ufw.yml
+  when: security_enable_ssh_ufw | bool
+
+- name: CrowdSec (détection + bouncer + escalade)
+  ansible.builtin.import_tasks: crowdsec.yml
+  when: security_enable_crowdsec | bool
+
+- name: Audit (auditd + journald persistant)
+  ansible.builtin.import_tasks: audit.yml
+  when: security_enable_audit | bool
+
+- name: Webhooks d'alerte
+  ansible.builtin.import_tasks: webhooks.yml
+  when: security_enable_webhooks | bool

@@ -1,0 +1,58 @@
+---
+- name: Installer UFW
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: true
+
+- name: SSH durci (drop-in validé)
+  ansible.builtin.template:
+    src: 60-hardening.conf.j2
+    dest: /etc/ssh/sshd_config.d/60-hardening.conf
+    owner: root
+    group: root
+    mode: "0644"
+    validate: "sshd -t -f /etc/ssh/sshd_config"
+  notify: Reload sshd
+
+- name: UFW - politiques par défaut
+  community.general.ufw:
+    direction: "{{ item.dir }}"
+    policy: "{{ item.pol }}"
+  loop:
+    - { dir: incoming, pol: deny }
+    - { dir: outgoing, pol: allow }
+
+- name: UFW - port bastion depuis le tailnet
+  community.general.ufw:
+    rule: allow
+    port: "{{ security_bastion_ssh_port }}"
+    proto: tcp
+    interface: "{{ security_tailscale_iface }}"
+    direction: in
+
+- name: UFW - SSH hôte seulement depuis le bastion (docker)
+  community.general.ufw:
+    rule: allow
+    port: "22"
+    proto: tcp
+    src: "{{ security_docker_subnet }}"
+
+- name: UFW - SSH hôte depuis le LAN (secours)
+  community.general.ufw:
+    rule: allow
+    port: "22"
+    proto: tcp
+    src: "{{ security_lan_subnet }}"
+
+- name: UFW - bloquer SSH hôte direct depuis le tailnet
+  community.general.ufw:
+    rule: deny
+    port: "22"
+    proto: tcp
+    interface: "{{ security_tailscale_iface }}"
+    direction: in
+
+- name: UFW - activer
+  community.general.ufw:
+    state: enabled
