@@ -67,6 +67,7 @@ jobs:
     name: Deploy Ansible
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: validate-ansible
+    environment: raspberry-maison
     runs-on: raspberry
     steps:
       - name: Checkout repository
