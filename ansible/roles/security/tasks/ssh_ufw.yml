@@ -66,6 +66,18 @@
     proto: tcp
     src: "{{ security_docker_subnet }}"
 
+- name: UFW - autoriser l'interface USB du modem (entrant)
+  community.general.ufw:
+    rule: allow
+    direction: in
+    interface: "{{ security_modem_iface }}"
+
+- name: UFW - autoriser l'interface USB du modem (sortant)
+  community.general.ufw:
+    rule: allow
+    direction: out
+    interface: "{{ security_modem_iface }}"
+
 - name: UFW - bloquer SSH hôte direct depuis le tailnet
   community.general.ufw:
     rule: deny
