@@ -31,6 +31,14 @@
     state: directory
     mode: "0755"
 
+- name: Créer le dossier de configuration journald (si absent)
+  ansible.builtin.file:
+    path: /etc/systemd/journald.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: journald persistant
   ansible.builtin.copy:
     dest: /etc/systemd/journald.conf.d/99-persistent.conf
