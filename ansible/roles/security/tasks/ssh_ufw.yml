@@ -72,6 +72,18 @@
     direction: in
     interface: "{{ security_modem_iface }}"
 
+- name: UFW - Autoriser l'interface loopback (entrant)
+  community.general.ufw:
+    rule: allow
+    direction: in
+    interface: lo
+
+- name: UFW - Autoriser l'interface loopback (sortant)
+  community.general.ufw:
+    rule: allow
+    direction: out
+    interface: lo
+
 - name: UFW - autoriser l'interface USB du modem (sortant)
   community.general.ufw:
     rule: allow
