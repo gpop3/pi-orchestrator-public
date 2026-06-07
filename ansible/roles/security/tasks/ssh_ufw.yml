@@ -59,6 +59,13 @@
     rule: allow
     src: "{{ security_lan_subnet }}"
 
+- name: UFW - autoriser le réseau Docker à joindre HA sur l'hôte
+  community.general.ufw:
+    rule: allow
+    port: "{{ security_ha_port }}"
+    proto: tcp
+    src: "{{ security_docker_subnet }}"
+
 - name: UFW - bloquer SSH hôte direct depuis le tailnet
   community.general.ufw:
     rule: deny

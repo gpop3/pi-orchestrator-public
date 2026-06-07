@@ -9,6 +9,7 @@ security_bastion_ssh_port: 2222
 security_lan_subnet: "192.168.1.0/24"
 security_docker_subnet: "172.16.0.0/12"
 security_tailscale_iface: tailscale0
+security_ha_port: 8123
 
 security_whitelist_cidr:
   - "127.0.0.1/32"
