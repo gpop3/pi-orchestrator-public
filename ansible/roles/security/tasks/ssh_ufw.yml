@@ -54,11 +54,9 @@
     proto: tcp
     src: "{{ security_docker_subnet }}"
 
-- name: UFW - SSH hôte depuis le LAN (secours)
+- name: UFW - tout autoriser depuis le LAN (zone de confiance)
   community.general.ufw:
     rule: allow
-    port: "22"
-    proto: tcp
     src: "{{ security_lan_subnet }}"
 
 - name: UFW - bloquer SSH hôte direct depuis le tailnet
