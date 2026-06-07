@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+log_file = /var/log/audit/audit.log
+log_format = ENRICHED
+flush = INCREMENTAL_ASYNC
+freq = 50
+
+# Bornage : max_log_file (Mo) x num_logs = plafond disque.
+max_log_file = {{ security_auditd_max_log_file_mb }}
+num_logs = {{ security_auditd_num_logs }}
+# ROTATE : écrase le plus vieux quand plein (ne sature JAMAIS le disque).
+max_log_file_action = ROTATE
+
+# Garde-fous si l'espace disque devient critique.
+space_left = 200
+space_left_action = SYSLOG
+admin_space_left = 100
+admin_space_left_action = SUSPEND
+disk_full_action = SUSPEND
+disk_error_action = SUSPEND

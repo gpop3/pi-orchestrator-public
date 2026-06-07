@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+set -euo pipefail
+set -a
+. /etc/restic.env
+set +a
+log() { logger -t restic-backup "$*"; echo "$*"; }
+log "Démarrage backup"
+restic backup {{ security_backup_sources | map('quote') | join(' ') }} --tag auto
+restic forget \
+  --keep-daily {{ security_backup_keep_daily }} \
+  --keep-weekly {{ security_backup_keep_weekly }} \
+  --keep-monthly {{ security_backup_keep_monthly }} \
+  --prune
+restic check --read-data-subset=5%
+log "Backup terminé"

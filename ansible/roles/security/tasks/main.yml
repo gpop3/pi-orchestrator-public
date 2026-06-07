@@ -1,4 +1,7 @@
 ---
+# Rôle security : orchestre les sous-tâches. Chacune est activable
+# via une variable security_enable_*.
+
 - name: SSH durci + UFW (tout le SSH via le bastion)
   ansible.builtin.import_tasks: ssh_ufw.yml
   when: security_enable_ssh_ufw | bool
@@ -14,3 +17,7 @@
 - name: Webhooks d'alerte
   ansible.builtin.import_tasks: webhooks.yml
   when: security_enable_webhooks | bool
+
+- name: Backup restic
+  ansible.builtin.import_tasks: backup.yml
+  when: security_enable_backup | bool

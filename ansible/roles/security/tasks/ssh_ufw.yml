@@ -5,15 +5,31 @@
     state: present
     update_cache: true
 
-- name: SSH durci (drop-in validé)
+- name: SSH durci (drop-in)
   ansible.builtin.template:
     src: 60-hardening.conf.j2
     dest: /etc/ssh/sshd_config.d/60-hardening.conf
     owner: root
     group: root
     mode: "0644"
-    validate: "sshd -t -f /etc/ssh/sshd_config"
   notify: Reload sshd
+
+- name: Valider la configuration sshd complète
+  ansible.builtin.command: sshd -t
+  register: _sshd_check
+  changed_when: false
+  failed_when: false
+
+- name: Retirer le drop-in si la conf sshd est invalide
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/60-hardening.conf
+    state: absent
+  when: _sshd_check.rc != 0
+
+- name: Échouer proprement si la conf sshd invalide
+  ansible.builtin.fail:
+    msg: "sshd_config invalide, drop-in retiré (aucun reload). Détail : {{ _sshd_check.stderr }}"
+  when: _sshd_check.rc != 0
 
 - name: UFW - politiques par défaut
   community.general.ufw:

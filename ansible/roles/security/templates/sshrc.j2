@@ -1,4 +1,4 @@
 #!/bin/sh
 # {{ ansible_managed }}
-/usr/local/bin/sec-notify.sh "host_login" "user=$USER from=$SSH_CLIENT" || true
+/usr/local/bin/sec-notify.sh "host_login" "user=$(id -un) from=$SSH_CLIENT" || true
 exit 0

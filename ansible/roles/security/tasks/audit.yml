@@ -7,6 +7,15 @@
     state: present
     update_cache: true
 
+- name: Configurer auditd (rotation + bornage disque)
+  ansible.builtin.template:
+    src: auditd.conf.j2
+    dest: /etc/audit/auditd.conf
+    owner: root
+    group: root
+    mode: "0640"
+  notify: Restart auditd
+
 - name: Règles auditd
   ansible.builtin.template:
     src: audit.rules.j2
@@ -32,4 +41,5 @@
       [Journal]
       Storage=persistent
       MaxRetentionSec=1year
+      SystemMaxUse={{ security_journald_max_use }}
   notify: Restart journald
