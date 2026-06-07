@@ -23,6 +23,6 @@ security_crowdsec_collections:
   - crowdsecurity/nginx
   - crowdsecurity/linux
   - crowdsecurity/base-http-scenarios
-security_crowdsec_bouncer_pkg: crowdsec-firewall-bouncer-iptables
+security_crowdsec_bouncer_pkg:  crowdsec-firewall-bouncer
 security_bastion_log_glob: /opt/projets/bastion/log/*.log
 security_crowdsec_ban_factor_hours: 4
