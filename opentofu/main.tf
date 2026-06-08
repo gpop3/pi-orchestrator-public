@@ -45,6 +45,7 @@ module "bastion" {
   edge_network  = docker_network.edge.name
   webhook_url   = var.bastion_webhook_url
   webhook_token = var.bastion_webhook_token
+  admin_pubkey  = var.bastion_admin_pubkey
 }
 
 module "mqtt" {

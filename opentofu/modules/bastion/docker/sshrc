@@ -6,12 +6,12 @@ if [ -n "$TOKEN" ]; then
   curl -fsS -m 5 -X POST "$URL" \
     -H "Authorization: Bearer ${TOKEN}" \
     -H 'Content-Type: application/json' \
-    -d "{\"event\":\"bastion_login\",\"user\":\"$USER\",\"from\":\"$SSH_CLIENT\",\"ts\":\"$(date -Iseconds 2>/dev/null)\"}" \
+    -d "{\"event\":\"bastion_login\",\"user\":\"$(id -un)\",\"from\":\"$SSH_CLIENT\",\"ts\":\"$(date -Iseconds 2>/dev/null)\"}" \
     >/dev/null 2>&1 || true
 else
   curl -fsS -m 5 -X POST "$URL" \
     -H 'Content-Type: application/json' \
-    -d "{\"event\":\"bastion_login\",\"user\":\"$USER\",\"from\":\"$SSH_CLIENT\",\"ts\":\"$(date -Iseconds 2>/dev/null)\"}" \
+    -d "{\"event\":\"bastion_login\",\"user\":\"$(id -un)\",\"from\":\"$SSH_CLIENT\",\"ts\":\"$(date -Iseconds 2>/dev/null)\"}" \
     >/dev/null 2>&1 || true
 fi
 exit 0

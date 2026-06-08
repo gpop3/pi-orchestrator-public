@@ -46,6 +46,7 @@ resource "docker_container" "this" {
   env = [
     "WEBHOOK_URL=${var.webhook_url}",
     "WEBHOOK_TOKEN=${var.webhook_token}",
+    "ADMIN_PUBKEY=${var.admin_pubkey}",
   ]
 
   ports {
@@ -57,7 +58,6 @@ resource "docker_container" "this" {
   volumes {
     host_path      = "${var.data_dir}/bastion/authorized_keys"
     container_path = "/home/jump/.ssh/authorized_keys"
-    read_only      = true
   }
 
   volumes {

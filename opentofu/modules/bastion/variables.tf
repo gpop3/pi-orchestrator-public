@@ -25,3 +25,9 @@ variable "webhook_token" {
   default     = ""
   sensitive   = true
 }
+
+variable "admin_pubkey" {
+  description = "Clé publique SSH de l'admin"
+  type        = string
+  default     = ""
+}

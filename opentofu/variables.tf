@@ -166,3 +166,9 @@ variable "bastion_webhook_token" {
   default     = ""
   sensitive   = true
 }
+
+variable "bastion_admin_pubkey" {
+  description = "Clé publique SSH de l'admin"
+  type        = string
+  default     = ""
+}
