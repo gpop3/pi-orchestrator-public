@@ -112,6 +112,7 @@ jobs:
       TF_VAR_ts_authkey: ${{ secrets.TAILSCALE_TS_AUTHKEY }}
       TF_VAR_bastion_webhook_url: ${{ secrets.BASTION_WEBHOOK_URL }}
       TF_VAR_bastion_webhook_token: ${{ secrets.BASTION_WEBHOOK_TOKEN }}
+      TF_VAR_bastion_admin_pubkey: ${{ secrets.BASTION_ADMIN_PUBKEY }}
 
     defaults:
       run:
