@@ -16,6 +16,23 @@
     state: present
     update_cache: true
 
+# Bug crowdsec : fichiers doivent avoir le nom "notification-<type>"
+- name: Lister les binaires de plugins non prefixes
+  ansible.builtin.find:
+    paths: /usr/lib/crowdsec/plugins
+    file_type: file
+    excludes: "notification-*"
+  register: _cs_plugins
+
+- name: Prefixer les binaires de plugins en notification-<type>
+  ansible.builtin.command:
+    cmd: "mv {{ item.path }} /usr/lib/crowdsec/plugins/notification-{{ item.path | basename }}"
+    creates: "/usr/lib/crowdsec/plugins/notification-{{ item.path | basename }}"
+  loop: "{{ _cs_plugins.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  notify: Restart crowdsec
+
 - name: Désactiver fail2ban si présent (conflit iptables avec CrowdSec)
   ansible.builtin.service:
     name: fail2ban
