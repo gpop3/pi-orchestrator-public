@@ -3,7 +3,7 @@ set -e
 
 SSH_DIR="/home/jump/.ssh"
 AUTHKEYS="$SSH_DIR/authorized_keys"
-OTP_FILE="/home/jump/.google_authenticator"
+OTP_FILE="/home/jump/otp/.google_authenticator"
 
 log() { echo "[bastion] $*"; }
 
@@ -36,14 +36,17 @@ if [ ! -s "$AUTHKEYS" ]; then
   log "###############################################################"
 fi
 
-if [ -f "$OTP_FILE" ] && [ -w "$OTP_FILE" ]; then
+mkdir -p /home/jump/otp
+chown jump:jump /home/jump/otp 2>/dev/null || true
+chmod 700 /home/jump/otp 2>/dev/null || true
+if [ -f "$OTP_FILE" ]; then
   chown jump:jump "$OTP_FILE" 2>/dev/null || true
   chmod 600 "$OTP_FILE" 2>/dev/null || true
 fi
 
 if [ ! -s "$OTP_FILE" ]; then
   log "***************************************************************"
-  log "*  2FA (TOTP) NON ENROLE — la cle SSH seule suffit (nullok).  *"
+  log "*  2FA (TOTP) NON ENROLE.  *"
   log "*  Procedure complete pour activer le 2e facteur :            *"
   log "***************************************************************"
   log ""
@@ -51,14 +54,8 @@ if [ ! -s "$OTP_FILE" ]; then
   log "   Aegis (Android, open-source), Google Authenticator, ou 2FAS"
   log ""
   log " ETAPE 2 — Lance l'enrolement (sur le Pi, mode interactif) :"
-  log "   # le fichier final est un bind-mount -> on genere dans /tmp/ga"
-  log "   # puis on copie le CONTENU (ecrire OK, remplacer = Device busy)"
   log "   docker exec -it bastion su - jump -c \\"
-  log "     \"mkdir -p /tmp/ga && HOME=/tmp/ga google-authenticator -t -d -f -r 3 -R 30 -w 3\""
-  log "   docker exec bastion sh -c \\"
-  log "     \"cat /tmp/ga/.google_authenticator > /home/jump/.google_authenticator\""
-  log "   docker exec bastion chown jump:jump /home/jump/.google_authenticator"
-  log "   docker exec bastion chmod 600 /home/jump/.google_authenticator"
+  log "     \"HOME=/home/jump/otp google-authenticator -t -d -f -r 3 -R 30 -w 3\""
   log ""
   log " ETAPE 3 — Dans la sortie de cette commande :"
   log "   - SCANNE le QR code avec ton app (ajouter un compte > scan)"
@@ -70,14 +67,6 @@ if [ ! -s "$OTP_FILE" ]; then
   log "   ssh -p 2222 jump@<nom-tailnet-du-pi>"
   log "   -> la cle passe, puis 'Verification code:' = tape le code"
   log "      a 6 chiffres de ton app. Si ca entre, le 2FA marche."
-  log ""
-  log " ETAPE 5 — Rendre le code OBLIGATOIRE (seulement si etape 4 OK) :"
-  log "   edite tofu/modules/bastion/docker/pam_sshd et retire 'nullok'"
-  log "   de la ligne pam_google_authenticator, puis :"
-  log "   cd tofu && tofu apply -target=module.bastion"
-  log ""
-  log " PIEGE A EVITER : ne fais l'etape 5 QU'APRES un test reussi a"
-  log " l'etape 4. Tant que 'nullok' est la, la cle seule te depanne."
   log "***************************************************************"
 else
   log "2FA (TOTP) enrole : authentification cle + code active. OK"
@@ -87,4 +76,5 @@ echo "${WEBHOOK_URL:-}"   > /etc/sec-webhook-url
 echo "${WEBHOOK_TOKEN:-}" > /etc/sec-webhook-token
 chmod 644 /etc/sec-webhook-url /etc/sec-webhook-token
 
+log "Demarrage de sshd"
 exec /usr/sbin/sshd -D -e

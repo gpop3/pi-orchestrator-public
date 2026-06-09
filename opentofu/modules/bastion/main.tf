@@ -6,10 +6,11 @@ resource "null_resource" "prepare" {
   provisioner "local-exec" {
     command = <<EOT
 sudo mkdir -p ${var.data_dir}/bastion/log
+sudo mkdir -p ${var.data_dir}/bastion/otp
 sudo touch ${var.data_dir}/bastion/authorized_keys
-sudo touch ${var.data_dir}/bastion/google_authenticator
 sudo chmod 0644 ${var.data_dir}/bastion/authorized_keys
-sudo chmod 0600 ${var.data_dir}/bastion/google_authenticator
+sudo chown 1000:1000 ${var.data_dir}/bastion/otp
+sudo chmod 0700 ${var.data_dir}/bastion/otp
 EOT
   }
 }
@@ -61,8 +62,8 @@ resource "docker_container" "this" {
   }
 
   volumes {
-    host_path      = "${var.data_dir}/bastion/google_authenticator"
-    container_path = "/home/jump/.google_authenticator"
+    host_path      = "${var.data_dir}/bastion/otp"
+    container_path = "/home/jump/otp"
   }
 
   volumes {
