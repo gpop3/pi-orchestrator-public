@@ -69,11 +69,11 @@ variable "nodered_domain" {
 variable "edge_ip" {
   description = "IP fixe de nginx sur le reseau edge"
   type        = string
-  default     = "172.18.0.3"
+  default     = "172.18.0.10"
 }
 
 variable "backend_ip" {
   description = "IP fixe de nginx sur le reseau backend"
   type        = string
-  default     = "172.19.0.3"
+  default     = "172.19.0.10"
 }

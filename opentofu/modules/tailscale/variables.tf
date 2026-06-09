@@ -32,7 +32,7 @@ variable "nginx_target" {
 }
 
 variable "edge_ip" {
-  description = "IP fixe de ts-gateway sur le reseau edge"
+  description = "IP fixe de ts-gateway sur le reseau edge (pour les regles de confinement)"
   type        = string
-  default     = "172.18.0.2"
+  default     = "172.18.0.11"
 }
