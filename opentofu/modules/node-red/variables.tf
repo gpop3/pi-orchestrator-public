@@ -21,3 +21,8 @@ variable "puid" {
 variable "pgid" {
   type = number
 }
+
+variable "backend_network" {
+  description = "Reseau backend partage avec nginx"
+  type        = string
+}

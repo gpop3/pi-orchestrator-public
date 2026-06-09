@@ -30,3 +30,9 @@ variable "nginx_target" {
   type        = string
   default     = "rev-proxy:80"
 }
+
+variable "edge_ip" {
+  description = "IP fixe de ts-gateway sur le reseau edge"
+  type        = string
+  default     = "172.18.0.2"
+}

@@ -9,6 +9,8 @@ module "mealie" {
   port         = var.mealie_port
   base_url     = var.mealie_base_url
   allow_signup = var.mealie_allow_signup
+
+  backend_network = docker_network.backend.name
 }
 
 module "homeassistant" {
@@ -27,6 +29,8 @@ module "tailscale" {
   hostname     = var.ts_hostname
   authkey      = var.ts_authkey
   edge_network = docker_network.edge.name
+
+  nginx_target = "rev-proxy:8080"
 }
 
 module "nginx" {
@@ -57,6 +61,8 @@ module "mqtt" {
   websocket_port = var.mqtt_websocket_port
   puid           = var.puid
   pgid           = var.pgid
+
+  count = 0
 }
 
 module "node_red" {
@@ -68,6 +74,8 @@ module "node_red" {
   port     = var.node_red_port
   puid     = var.puid
   pgid     = var.pgid
+
+  backend_network = docker_network.backend.name
 }
 
 module "decouverte" {

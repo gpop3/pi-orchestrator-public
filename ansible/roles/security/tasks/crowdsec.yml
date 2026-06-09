@@ -55,3 +55,40 @@
     group: root
     mode: "0644"
   notify: Restart crowdsec
+
+- name: Whitelist - réseaux de confiance
+  ansible.builtin.template:
+    src: crowdsec/whitelists.yaml.j2
+    dest: /etc/crowdsec/parsers/s02-enrich/mywhitelists.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart crowdsec
+
+- name: Profil d'escalade (ban croissant à chaque récidive)
+  ansible.builtin.template:
+    src: crowdsec/profiles.yaml.j2
+    dest: /etc/crowdsec/profiles.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart crowdsec
+
+- name: Notification webhook HA (sur ban)
+  ansible.builtin.template:
+    src: crowdsec/http-webhook.yaml.j2
+    dest: /etc/crowdsec/notifications/http.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  when: security_webhook_url | length > 0
+  notify: Restart crowdsec
+
+- name: Activer CrowdSec + bouncer
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - crowdsec
+    - crowdsec-firewall-bouncer

@@ -3,5 +3,5 @@ output "container_name" {
 }
 
 output "url" {
-  value = "http://localhost:${var.port}"
+  value = "http://nodered.maison.local"
 }

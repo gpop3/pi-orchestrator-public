@@ -7,7 +7,7 @@ pgid = 1000
 
 mealie_image        = "ghcr.io/mealie-recipes/mealie:v3.14.0"
 mealie_port         = 9925
-mealie_base_url     = "http://localhost:9925"
+mealie_base_url     = "http://mealie.maison.local"
 mealie_allow_signup = true
 
 homeassistant_image = "ghcr.io/home-assistant/home-assistant:2026.3.3"

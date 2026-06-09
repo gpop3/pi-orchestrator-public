@@ -18,3 +18,9 @@
   ansible.builtin.service:
     name: systemd-journald
     state: restarted
+
+- name: Restart confine-tsgateway
+  ansible.builtin.systemd:
+    name: confine-tsgateway
+    state: restarted
+    daemon_reload: true

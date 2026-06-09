@@ -22,10 +22,8 @@ resource "docker_container" "this" {
 
   restart = "unless-stopped"
 
-  ports {
-    internal = 1880
-    external = var.port
-    protocol = "tcp"
+  networks_advanced {
+    name = var.backend_network
   }
 
   env = [

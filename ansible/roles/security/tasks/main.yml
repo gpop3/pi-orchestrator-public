@@ -17,3 +17,7 @@
 - name: Webhooks d'alerte
   ansible.builtin.import_tasks: webhooks.yml
   when: security_enable_webhooks | bool
+
+- name: Confinement réseau de ts-gateway
+  ansible.builtin.import_tasks: confine_tsgateway.yml
+  when: security_enable_tsgateway_confine | bool

@@ -38,7 +38,8 @@ resource "docker_container" "this" {
   restart = "unless-stopped"
 
   networks_advanced {
-    name = var.edge_network
+    name         = var.edge_network
+    ipv4_address = var.edge_ip
   }
 
   env = [

@@ -1,0 +1,37 @@
+---
+- name: Déposer le script de confinement de ts-gateway
+  ansible.builtin.template:
+    src: confine-tsgateway.sh.j2
+    dest: /usr/local/bin/confine-tsgateway.sh
+    owner: root
+    group: root
+    mode: "0755"
+  notify: Restart confine-tsgateway
+
+- name: Service systemd de confinement de ts-gateway
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/confine-tsgateway.service
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Confinement reseau de ts-gateway (DOCKER-USER)
+      After=docker.service
+      Requires=docker.service
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/confine-tsgateway.sh
+      RemainAfterExit=true
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: Restart confine-tsgateway
+
+- name: Activer le confinement de ts-gateway
+  ansible.builtin.systemd:
+    name: confine-tsgateway
+    enabled: true
+    state: started
+    daemon_reload: true

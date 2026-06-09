@@ -6,10 +6,13 @@ security_enable_webhooks:  true
 
 security_admin_user:  "{{ lookup('env', 'SECURITY_ADMIN_USER') }}"
 security_bastion_ssh_port: 2222
+security_web_port: 80
+security_hostmode_ports:
+  - 8123
+  - 8080
 security_lan_subnet: "192.168.1.0/24"
 security_docker_subnet: "172.16.0.0/12"
 security_tailscale_iface: tailscale0
-security_ha_port: 8123
 security_modem_iface: usb0
 
 security_whitelist_cidr:
@@ -25,9 +28,19 @@ security_crowdsec_collections:
   - crowdsecurity/nginx
   - crowdsecurity/linux
   - crowdsecurity/base-http-scenarios
-security_crowdsec_bouncer_pkg:  crowdsec-firewall-bouncer
+security_crowdsec_bouncer_pkg: crowdsec-firewall-bouncer
 security_bastion_log_glob: /opt/projets/bastion/log/*.log
 security_crowdsec_ban_factor_hours: 4
 security_auditd_max_log_file_mb: 50
 security_auditd_num_logs: 5
 security_journald_max_use: 500M
+
+security_enable_bastion_watch: true
+security_bastion_container: bastion
+security_bastion_watch_max_fails: 6
+security_bastion_watch_window: 120
+
+security_enable_tsgateway_confine: true
+security_tsgateway_ip: "172.18.0.2"
+security_nginx_edge_ip: "172.18.0.3"
+security_tsgateway_allowed_port: 8080

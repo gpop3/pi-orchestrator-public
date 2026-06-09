@@ -29,3 +29,8 @@ variable "base_url" {
 variable "allow_signup" {
   type = bool
 }
+
+variable "backend_network" {
+  description = "Reseau backend partage avec nginx"
+  type        = string
+}
