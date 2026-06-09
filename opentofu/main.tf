@@ -52,19 +52,6 @@ module "bastion" {
   admin_pubkey  = var.bastion_admin_pubkey
 }
 
-module "mqtt" {
-  source = "./modules/mqtt"
-
-  data_dir       = var.data_dir
-  image          = var.mqtt_image
-  mqtt_port      = var.mqtt_port
-  websocket_port = var.mqtt_websocket_port
-  puid           = var.puid
-  pgid           = var.pgid
-
-  count = 0
-}
-
 module "node_red" {
   source = "./modules/node-red"
 
