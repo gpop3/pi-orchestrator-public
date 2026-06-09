@@ -10,12 +10,12 @@ output "homeassistant_url" {
 
 output "mqtt_url" {
   description = "MQTT broker URL"
-  value       = module.mqtt.mqtt_url
+  value       = length(module.mqtt) > 0 ? module.mqtt[0].mqtt_url : null
 }
 
 output "mqtt_websocket_url" {
   description = "MQTT WebSocket URL"
-  value       = module.mqtt.websocket_url
+  value       = length(module.mqtt) > 0 ? module.mqtt[0].websocket_url : null
 }
 
 output "node_red_url" {
@@ -25,12 +25,14 @@ output "node_red_url" {
 
 output "container_names" {
   description = "Managed container names"
-  value = [
-    module.mealie.container_name,
-    module.homeassistant.container_name,
-    module.mqtt.container_name,
-    module.node_red.container_name
-  ]
+  value = concat(
+    [
+      module.mealie.container_name,
+      module.homeassistant.container_name,
+      module.node_red.container_name,
+    ],
+    module.mqtt[*].container_name
+  )
 }
 
 output "decouverte_container_name" {
