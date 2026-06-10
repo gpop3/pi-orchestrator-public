@@ -1,38 +1,30 @@
 #!/usr/bin/env bash
 # {{ ansible_managed }}
-# Confine ts-gateway : il ne peut joindre QUE nginx:{{ security_tsgateway_allowed_port }}.
-# Tout autre trafic issu de ts-gateway est jete (anti-pivot lateral).
-# Idempotent : verifie l'existence de chaque regle avant de l'ajouter.
 set -uo pipefail
 
 TS_IP="{{ security_tsgateway_ip }}"
 NGINX_IP="{{ security_nginx_edge_ip }}"
 PORT="{{ security_tsgateway_allowed_port }}"
-CHAIN="DOCKER-USER"
+EDGE_SUBNET="{{ security_edge_subnet }}"
+BACKEND_SUBNET="{{ security_backend_subnet }}"
 
-# Attendre que la chaine DOCKER-USER existe (creee par Docker au demarrage).
 for _ in $(seq 1 30); do
-  iptables -L "$CHAIN" -n >/dev/null 2>&1 && break
+  iptables -L DOCKER-USER -n >/dev/null 2>&1 && break
   sleep 2
 done
 
-add_rule() {
-  # $@ = specification de la regle (sans -A/-I)
-  if ! iptables -C "$CHAIN" "$@" 2>/dev/null; then
-    iptables -I "$CHAIN" "$@"
-  fi
-}
+# --- Nettoyage ---
+while iptables -D DOCKER-USER -d "$TS_IP" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null; do :; done
+while iptables -D DOCKER-USER -s "$TS_IP" -d "$NGINX_IP" -p tcp --dport "$PORT" -j ACCEPT 2>/dev/null; do :; done
+while iptables -D DOCKER-USER -s "$TS_IP" -d "$EDGE_SUBNET" -j DROP 2>/dev/null; do :; done
+while iptables -D DOCKER-USER -s "$TS_IP" -d "$BACKEND_SUBNET" -j DROP 2>/dev/null; do :; done
 
-# 1) Autoriser le retour des connexions deja etablies (vers ts-gateway)
-add_rule -d "$TS_IP" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+# --- Autoriser le RETOUR des connexions etablies vers ts-gateway ---
+iptables -I DOCKER-USER -d "$TS_IP" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
-# 2) Autoriser ts-gateway -> nginx UNIQUEMENT sur le port de la zone tailnet
-add_rule -s "$TS_IP" -d "$NGINX_IP" -p tcp --dport "$PORT" -j ACCEPT
+# --- Autoriser ts-gateway -> nginx:PORT (zone tailnet, sa seule voie interne) ---
+iptables -I DOCKER-USER -s "$TS_IP" -d "$NGINX_IP" -p tcp --dport "$PORT" -j ACCEPT
 
-# 3) Jeter TOUT le reste venant de ts-gateway (insere en DERNIER => evalue apres
-#    les ACCEPT ci-dessus, qui ont ete inseres en tete par -I).
-if ! iptables -C "$CHAIN" -s "$TS_IP" -j DROP 2>/dev/null; then
-  iptables -A "$CHAIN" -s "$TS_IP" -j DROP
-fi
-
-logger -t confine-tsgateway "regles DOCKER-USER appliquees : ts-gateway -> nginx:${PORT} uniquement"
+# --- Bloquer ts-gateway -> reseaux Docker internes (edge + backend), gateway/hote inclus ---
+iptables -A DOCKER-USER -s "$TS_IP" -d "$EDGE_SUBNET" -j DROP
+iptables -A DOCKER-USER -s "$TS_IP" -d "$BACKEND_SUBNET" -j DROP

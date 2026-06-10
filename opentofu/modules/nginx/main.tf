@@ -21,6 +21,10 @@ server {
     listen 80;
     server_name ${var.ha_domain};
 
+    allow 192.168.1.0/24;
+    allow 172.19.0.1;
+    deny all;
+
     location / {
         proxy_pass http://${var.ha_upstream};
         proxy_http_version 1.1;
@@ -38,6 +42,10 @@ server {
 server {
     listen 80;
     server_name ${var.mealie_domain};
+
+    allow 192.168.1.0/24;
+    allow 172.19.0.1;
+    deny all;
 
     location / {
         set $upstream_mealie http://${var.mealie_upstream};
@@ -58,6 +66,10 @@ server {
     listen 80;
     server_name ${var.nodered_domain};
 
+    allow 192.168.1.0/24;
+    allow 172.19.0.1;
+    deny all;
+
     location / {
         set $upstream_nodered http://${var.nodered_upstream};
         proxy_pass $upstream_nodered;
@@ -77,6 +89,10 @@ server {
     listen 80 default_server;
     server_name _;
 
+    allow 192.168.1.0/24;
+    allow 172.19.0.1;
+    deny all;
+
     location / {
         proxy_pass http://${var.ha_upstream};
         proxy_http_version 1.1;
@@ -94,6 +110,9 @@ server {
 server {
     listen ${var.tailnet_port} default_server;
     server_name _;
+
+    allow 172.18.0.11;
+    deny all;
 
     location / {
         proxy_pass http://${var.ha_upstream};

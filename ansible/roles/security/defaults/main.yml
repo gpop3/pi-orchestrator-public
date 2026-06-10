@@ -45,3 +45,5 @@ security_enable_tsgateway_confine: true
 security_tsgateway_ip: "172.18.0.11"
 security_nginx_edge_ip: "172.18.0.10"
 security_tsgateway_allowed_port: 8080
+security_edge_subnet: "172.18.0.0/24"
+security_backend_subnet: "172.19.0.0/24"
