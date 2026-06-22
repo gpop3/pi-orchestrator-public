@@ -24,7 +24,7 @@ jobs:
     name: Static Security Scan
     runs-on: raspberry
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -46,7 +46,7 @@ jobs:
     runs-on: raspberry
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Ansible Lint (Strict hors branche principal)
         if: github.ref != 'refs/heads/main'
@@ -75,7 +75,7 @@ jobs:
       SECURITY_WEBHOOK_TOKEN: ${{ secrets.SECURITY_WEBHOOK_TOKEN }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Run Ansible
         working-directory: ansible
         run: ansible-playbook -i inventory.ini site.yml
@@ -87,7 +87,7 @@ jobs:
     runs-on: raspberry
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Tofu Init & Validate
         working-directory: ./opentofu
         run: |
@@ -119,7 +119,7 @@ jobs:
         working-directory: ./opentofu
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: OpenTofu Apply
         run: |
